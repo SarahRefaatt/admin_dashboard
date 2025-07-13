@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-
+import "@/i18n";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 const faqItems = [
   {
     id: "item-1",
@@ -68,7 +70,20 @@ const faqItems = [
 
 export default function FAQPage() {
   const [searchTerm, setSearchTerm] = useState("");
+const [mounted, setMounted] = useState(false);
+  const { t, i18n } = useTranslation();
 
+  // RTL/LTR handling
+  useEffect(() => {
+    if (i18n.language === "ar") {
+      document.documentElement.dir = "rtl";
+      document.documentElement.lang = "ar";
+    } else {
+      document.documentElement.dir = "ltr";
+      document.documentElement.lang = i18n.language;
+    }
+    setMounted(true);
+  }, [i18n.language])
   const {empcode}=useParams();
   const filteredItems = faqItems.filter(item =>
     item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -77,7 +92,7 @@ export default function FAQPage() {
   );
 
   return (
-    <div 
+    <div
       className="min-h-screen flex items-center justify-center p-4 md:p-8"
       style={{
         backgroundImage: "url('/assets/bg1.png')",
@@ -89,29 +104,29 @@ export default function FAQPage() {
     >
       <div className="w-full h-auto m-4 bg-gray-100 opacity-80 rounded-lg shadow-lg overflow-hidden grid grid-rows">
         <div className="items-center justify-center m-6">
-          <h1 className="text-center text-3xl font-bold">Frequently Asked Questions</h1>
-          
+          <h1 className="text-center text-3xl font-bold">{t("faq.title")}</h1>
+
           <div className="items-center justify-center m-6">
             <Input
-              placeholder="Search questions or answers..."
+              placeholder={t("faq.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-[1500px] mb-6 flex md:items-center justify-center"
             />
 
             {filteredItems.length === 0 ? (
-              <p className="text-center text-gray-500">No questions found matching your search.</p>
+              <p className="text-center text-gray-500">{t("faq.noResults")}</p>
             ) : (
               <Accordion type="single" collapsible className="w-full">
                 {filteredItems.map((item) => (
                   <AccordionItem key={item.id} value={item.id}>
                     <AccordionTrigger className="text-lg hover:no-underline">
-                      {item.question}
+                      {t(`faq.items.${item.id}.question`)}
                     </AccordionTrigger>
                     <AccordionContent>
-                      {item.answer}
+                      {t(`faq.items.${item.id}.answer`)}
                       <div className="mt-2 text-sm text-gray-500">
-                        Category: {item.category}
+                        {t("faq.category")}: {t(`faq.items.${item.id}.category`)}
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -119,14 +134,6 @@ export default function FAQPage() {
               </Accordion>
             )}
           </div>
-
-          {/* <div className="items-center justify-center m-4 flex">
-            <Link href={`/${empcode}/ask_question`} passHref>
-              <Button className="bg-green-700 hover:bg-green-600 py-4 px-6 text-lg  text-white">
-                Have another Question
-              </Button>
-            </Link>
-          </div> */}
         </div>
       </div>
     </div>

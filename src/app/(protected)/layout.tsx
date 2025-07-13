@@ -233,21 +233,20 @@ export default function ProtectedLayout({
 
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      {
-        isAuthenticated && (
+<div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
+  {isAuthenticated ? (
+    <>
+      <SiteHeader />
+      <main className="flex-1 w-full">
+        {children}
+      </main>
+    </>
+  ) : (
+    <main className="flex-1">
+      {children}
+    </main>
+  )}
+</div>
 
-  <Navigation data={data}>
-
-    <SiteHeader />
-    {children}
-    
-    
-    </Navigation>
-
-        )
-      }
-    
-    </div>
   );
 }

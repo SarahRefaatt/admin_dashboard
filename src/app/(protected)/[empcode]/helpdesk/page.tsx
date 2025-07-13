@@ -2,9 +2,25 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link";
 import { useParams } from "next/navigation";
-
+import "@/i18n";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
+import { useEffect, useState } from "react";
 export default function Page() {
+const [mounted, setMounted] = useState(false);
+  const { t, i18n } = useTranslation();
 
+  // RTL/LTR handling
+  useEffect(() => {
+    if (i18n.language === "ar") {
+      document.documentElement.dir = "rtl";
+      document.documentElement.lang = "ar";
+    } else {
+      document.documentElement.dir = "ltr";
+      document.documentElement.lang = i18n.language;
+    }
+    setMounted(true);
+  }, [i18n.language])
     const { empcode } = useParams
     ();
   
@@ -20,13 +36,12 @@ export default function Page() {
     backgroundAttachment: "fixed"
   }}
 >
-  <div className="w-full max-w-4xl  bg-opacity-90 rounded-lg ">
+  <div className="w-full max-w-4xl bg-opacity-90 rounded-lg">
     <div className="p-6 md:p-8 space-y-6">
       <header className="text-center space-y-4">
-        <h1 className="text-3xl font-bold text-gray-100">HR Help Desk</h1>
+        <h1 className="text-3xl font-bold text-gray-100">{t("hrHelpDeskTitle")}</h1>
         <p className="text-lg text-gray-200 max-w-3xl mx-auto">
-          You can ask any HR-related question or request an HR document by clicking 
-          the buttons below. Our team is ready to assist you with all your HR needs.
+          {t("hrHelpDeskDescription")}
         </p>
       </header>
 
@@ -36,7 +51,7 @@ export default function Page() {
             className="bg-green-700 hover:bg-green-600 text-white py-6 px-8 rounded-lg 
                       text-lg font-medium w-full md:w-auto min-w-[240px] transition-colors"
           >
-            Ask a Question
+            {t("askQuestion")}
           </Button>
         </Link>
         <Link href={`/${empcode}/hr_document`} passHref>
@@ -44,7 +59,7 @@ export default function Page() {
             className="bg-green-700 hover:bg-green-600 text-white py-6 px-8 rounded-lg 
                       text-lg font-medium w-full md:w-auto min-w-[240px]"
           >
-            Request
+            {t("requestDocument")}
           </Button>
         </Link>
       </div>

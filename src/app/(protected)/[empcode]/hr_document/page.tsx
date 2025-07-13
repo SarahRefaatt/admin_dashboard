@@ -4,10 +4,27 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-
+import "@/i18n"; // Import the i18n configuration
+import { useTranslation } from "react-i18next";
 export default function Page() {
   const { empcode } = useParams<{ empcode: string }>();
 
+  const { t, i18n } = useTranslation();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Apply RTL styling if needed when the component mounts
+    if (i18n.language === "ar") {
+      document.documentElement.dir = "rtl";
+      document.documentElement.lang = "ar";
+    } else {
+      document.documentElement.dir = "ltr";
+      document.documentElement.lang = i18n.language;
+    }
+
+    // Mark component as mounted to avoid hydration mismatch
+    setMounted(true);
+  }, [i18n.language]);
   interface Request {
     id: number;
     title: string;
@@ -96,16 +113,17 @@ export default function Page() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+      <div className={`min-h-screen flex flex-col items-center justify-center bg-gray-100 ${i18n.language === 'ar' ? 'rtl' : ''}`}>
         <div className="w-full max-w-md px-4">
-          {/* <h2 className="text-xl font-semibold mb-4 text-gray-700">Loading Requests...</h2> */}
           <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div 
-              className={`w-[${progress}%] bg-green-600 h-2.5 rounded-full transition-all duration-300 ease-out`} 
-             
+            <div
+              className="bg-green-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${progress}%` }}
             ></div>
           </div>
-          <p className="mt-2 text-sm text-gray-500">{Math.round(progress)}%</p>
+          <p className="mt-2 text-sm text-gray-500">
+            {Math.round(progress)}% {t("loading")}
+          </p>
         </div>
       </div>
     );
@@ -120,9 +138,9 @@ export default function Page() {
         <Link href="" passHref className="md:py-4">
           <Button className="bg-green-700 hover:bg-green-600 md:py-5 py-4 w-40 md:px-15  text-white">Human Plus</Button>
         </Link> */}
-        <h1 className="text-xl font-semibold md:py-4 flex md:justify-start">You can press here for a new Request</h1>
+        <h1 className="text-xl font-semibold md:py-4 flex md:justify-start">{mounted ? <>{t("YoucanpresshereforanewRequest")}</>: <span className="opacity-50">&nbsp;</span>}</h1>
         <Link href={`/${empcode}/request2`} passHref className="md:py-4">
-          <Button className="bg-green-700 hover:bg-green-600 md:py-5 py-4 w-40 md:px-18 text-white">New Request</Button>
+          <Button className="bg-green-700 hover:bg-green-600 md:py-5 py-4 w-40 md:px-18 text-white">{mounted ? <>{t("newRequest")}</>: <span className="opacity-50">&nbsp;</span>}</Button>
         </Link>
       </div>
     </div>

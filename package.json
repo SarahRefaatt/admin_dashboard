@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+   
     "start": "next start",
     "lint": "next lint",
     "lint-all": "eslint --ext .js,.jsx,.ts,.tsx --ignore-pattern \"**/*.stories.*\" .",
@@ -37,6 +38,7 @@
     "next-themes": "^0.4.6",
     "nodemailer": "^7.0.3",
     "react": "^19.0.0",
+    "react-datepicker": "^8.4.0",
     "react-day-picker": "^8.10.1",
     "react-dom": "^19.0.0",
     "react-i18next": "^15.5.2",
@@ -60,6 +62,7 @@
     "@types/node": "^20.19.1",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
+    "@types/react-datepicker": "^6.2.0",
     "@types/react-dom": "^19",
     "@types/xlsx": "^0.0.35",
     "ajv": "^8.12.0",

@@ -2,7 +2,9 @@
 import DataTable from "@/components/table_2";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
+import "@/i18n";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 interface Request {
   emp: any;
   id: number;
@@ -55,7 +57,22 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [accessChecked, setAccessChecked] = useState(false); // New state to track access check completion
   const [progress, setProgress] = useState(20);
+const [mounted, setMounted] = useState(false);
+  const { t, i18n } = useTranslation();
 
+  // RTL/LTR handling
+  useEffect(() => {
+    if (i18n.language === "ar") {
+      document.documentElement.dir = "rtl";
+      document.documentElement.lang = "ar";
+    } else {
+      document.documentElement.dir = "ltr";
+      document.documentElement.lang = i18n.language;
+    }
+    setMounted(true);
+  }, [i18n.language]);
+
+  
 const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
 const filter = searchParams ? searchParams.get('filter') : null;
 console.log("Filter page:", filter);
@@ -175,26 +192,26 @@ console.log("Filter page:", filter);
   // Show loading screen until we know the access status
   if (loading || !accessChecked) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+      <div className={`min-h-screen flex flex-col items-center justify-center bg-gray-100 ${i18n.language === 'ar' ? 'rtl' : ''}`}>
         <div className="w-full max-w-md px-4">
-          {/* <h2 className="text-xl font-semibold mb-4 text-gray-700">Loading Requests...</h2> */}
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
               className="bg-green-600 h-2.5 rounded-full transition-all duration-300 ease-out"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
-          <p className="mt-2 text-sm text-gray-500">{Math.round(progress)}%</p>
+          <p className="mt-2 text-sm text-gray-500">
+            {Math.round(progress)}% {t("loading")}
+          </p>
         </div>
       </div>
     );
   }
 
-  // Access Denied Page - only show after we've completed the access check
-  if (!emp || !["ADMIN", "SUPER_ADMIN", , "MANAGER"].includes(emp.empType)) {
+  if (!emp || !["ADMIN", "SUPER_ADMIN", "MANAGER"].includes(emp.empType)) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center p-6 bg-cover bg-fixed bg-center bg-no-repeat"
+        className={`min-h-screen flex items-center justify-center p-6 bg-cover bg-fixed bg-center bg-no-repeat ${i18n.language === 'ar' ? 'rtl' : ''}`}
         style={{ backgroundImage: "url('/assets/bg1.png')" }}
       >
         <div className="bg-white bg-opacity-90 rounded-xl shadow-lg border-4 border-green-600 max-w-lg w-full text-center p-8">
@@ -212,24 +229,24 @@ console.log("Filter page:", filter);
             />
           </svg>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            Access Denied
+            {t("accessDenied")}
           </h1>
           <p className="text-gray-600 mb-6">
-            You do not have permission to view this page.
+            {t("noPermission")}
           </p>
           <a
             href={`/${empcode}/helpdesk`}
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
           >
-            Return to Helpdesk
+            {t("returnToHelpdesk")}
           </a>
           <div className="mt-6 text-sm text-gray-500">
-            Need help?{" "}
+            {t("needHelp")}{" "}
             <a
               href="mailto:support@example.com"
               className="text-green-700 underline"
             >
-              Contact support
+              {t("contactSupport")}
             </a>
           </div>
         </div>
@@ -237,12 +254,10 @@ console.log("Filter page:", filter);
     );
   }
 
-  // Authorized Page
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-      {/* <p>page: {filter}</p> */}
+    <div className={`min-h-screen bg-gray-100 p-4 md:p-8 ${i18n.language === 'ar' ? 'rtl' : ''}`}>
       <DataTable
-      filter={Array.isArray(filter) ? filter[0] : filter}
+        filter={Array.isArray(filter) ? filter[0] : filter}
         data={requests}
         admins={employees.filter((e) =>
           ["ADMIN", "SUPER_ADMIN"].includes(e.empType)
@@ -254,3 +269,4 @@ console.log("Filter page:", filter);
     </div>
   );
 }
+

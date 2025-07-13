@@ -6,7 +6,9 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Link } from "lucide-react";
-
+import "@/i18n";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 type Request = {
   id: string;
   employeeId: string;
@@ -51,6 +53,20 @@ export default function RequestDetailsPage() {
   const [progress, setProgress] = useState(10);
 
   const { empcode } = useParams<{ empcode: string }>();
+const [mounted, setMounted] = useState(false);
+  const { t, i18n } = useTranslation();
+
+  // RTL/LTR handling
+  useEffect(() => {
+    if (i18n.language === "ar") {
+      document.documentElement.dir = "rtl";
+      document.documentElement.lang = "ar";
+    } else {
+      document.documentElement.dir = "ltr";
+      document.documentElement.lang = i18n.language;
+    }
+    setMounted(true);
+  }, [i18n.language]);
 
   console.log("empcode", empcode);
   const [formData, setFormData] = useState<Partial<Request>>({
@@ -114,18 +130,19 @@ export default function RequestDetailsPage() {
     if (id) fetchRequestDetails();
   }, [id, empcode]);
 
-  if (loading) {
+   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+      <div className={`min-h-screen flex flex-col items-center justify-center bg-gray-100 ${i18n.language === 'ar' ? 'rtl' : ''}`}>
         <div className="w-full max-w-md px-4">
-          {/* <h2 className="text-xl font-semibold mb-4 text-gray-700">Loading Requests...</h2> */}
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
               className="bg-green-600 h-2.5 rounded-full transition-all duration-300 ease-out"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
-          <p className="mt-2 text-sm text-gray-500">{Math.round(progress)}%</p>
+          <p className="mt-2 text-sm text-gray-500">
+            {Math.round(progress)}% {t("loading")}
+          </p>
         </div>
       </div>
     );
@@ -283,178 +300,176 @@ export default function RequestDetailsPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 md:p-8"
-      style={{
-        backgroundImage: "url('/assets/bg1.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundAttachment: "fixed",
-      }}
-    >
-      <div className="bg-white rounded-2xl opacity-90 p-6 md:p-10 m-3 w-full max-w-4xl shadow-xl">
-        <h1 className="text-3xl font-serif text-center text-gray-800 font-bold mb-8">
-          Request Details
-        </h1>
+  className="min-h-screen flex items-center justify-center p-4 md:p-8"
+  style={{
+    backgroundImage: "url('/assets/bg1.png')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed",
+  }}
+>
+  <div className="bg-white rounded-2xl opacity-90 p-6 md:p-10 m-3 w-full max-w-4xl shadow-xl">
+    <h1 className="text-3xl font-serif text-center text-gray-800 font-bold mb-8">
+      {t("requestDetails")}
+    </h1>
 
-        {/* Request Information Section */}
-        <div className="bg-gray-50 rounded-xl p-6 mb-8 border border-gray-200">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            Request Summary
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label className="text-gray-600">Requester Name</Label>
-              <p className="font-medium">{currentRequest?.emp?.name}</p>
-            </div>
-            <div>
-              <Label className="text-gray-600">Requester Department</Label>
-              <p className="font-medium">{currentRequest?.emp?.department}</p>
-            </div>
-            <div>
-              <Label className="text-gray-600">Requester ID</Label>
-              <p className="font-medium">{currentRequest?.emp?.employeeId}</p>
-            </div>
-            <div>
-              <Label className="text-gray-600">Requester Position</Label>
-              <p className="font-medium">
-                {currentRequest?.emp?.position || "N/A"}
-              </p>
-            </div>
-            <div>
-              <Label className="text-gray-600">Request Type</Label>
-              <p className="font-medium">
-                {currentRequest?.requestType || "N/A"}
-              </p>
-            </div>
-
-            <div>
-              <Label className="text-gray-600">Current Status</Label>
-              <p className="font-medium">{currentRequest?.status || "N/A"}</p>
-            </div>
-
-            <div className="">
-              <Label className="text-gray-600 ">Attached Document</Label>
-              {currentRequest?.documentUrl ? (
-                <a
-                  href={currentRequest.documentUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center text-blue-500 hover:underline"
-                >
-                  <Link className="mr-2" size={16} />
-                  {currentRequest.documentUrl.split("/").pop()}
-                </a>
-              ) : (
-                <p className="font-medium text-gray-500">N/A</p>
-              )}
-            </div>
-            {currentRequest?.description && (
-              <div className="md:col-span-2">
-                <Label className="text-gray-600">Description</Label>
-                <p className="font-medium">{currentRequest.description}</p>
-              </div>
-            )}
-          </div>
+    {/* Request Information Section */}
+    <div className="bg-gray-50 rounded-xl p-6 mb-8 border border-gray-200">
+      <h2 className="text-xl font-semibold mb-4 text-gray-700">
+        {t("requestSummary")}
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label className="text-gray-600">{t("requesterName")}</Label>
+          <p className="font-medium">{currentRequest?.emp?.name}</p>
         </div>
-
-        {/* Update Form Section */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="status" className="text-gray-700">
-                Update Status*
-              </Label>
-              <select
-                id="status"
-                name="status"
-                className="w-full rounded-xl border border-gray-300 p-3 focus:border-green-700 focus:outline-none"
-                value={formData.status}
-                onChange={handleChange}
-                required
-              >
-                <option value="PENDING">Pending</option>
-                {/* <option value="IN_PROGRESS">In Progress</option> */}
-                <option value="COMPLETED">Completed</option>
-                <option value="REJECTED">Rejected</option>
-              </select>
-            </div>
-
-            <div>
-              <Label htmlFor="reply" className="text-gray-700">
-                Admin Reply*
-              </Label>
-              <textarea
-                id="reply"
-                name="reply"
-                className="w-full rounded-xl border border-gray-300 p-3 focus:border-green-700 focus:outline-none"
-                placeholder="Enter your response to the request"
-                rows={4}
-                value={formData.reply || ""}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            
-                    {/* File Upload */}
-                    <div className="col-span-2 space-y-2">
-                      <Label htmlFor="file">Select File (optional)</Label>
-                      <Input
-                        id="file"
-                        type="file"
-                        onChange={handleFileChange}
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                      />
-                      {uploadStatus && (
-                        <p
-                          className={`text-sm ${
-                            uploadStatus.success ? "text-green-600" : "text-red-600"
-                          }`}
-                        >
-                          {uploadStatus.message}
-                        </p>
-                      )}
-                    </div>
-          </div>
-
-          {error && (
-            <div className="p-3 bg-red-50 text-red-600 rounded-lg">{error}</div>
-          )}
-
-          {submitSuccess && (
-            <div className="p-3 bg-green-50 text-green-600 rounded-lg">
-              Request updated successfully!
-            </div>
-          )}
-
-          <div className="flex justify-end space-x-4">
-            <Button
-              type="button"
-              variant="outline"
-              className="py-3 px-6 rounded-xl"
-              onClick={() => router.back()}
+        <div>
+          <Label className="text-gray-600">{t("requesterDepartment")}</Label>
+          <p className="font-medium">{currentRequest?.emp?.department}</p>
+        </div>
+        <div>
+          <Label className="text-gray-600">{t("requesterId")}</Label>
+          <p className="font-medium">{currentRequest?.emp?.employeeId}</p>
+        </div>
+        <div>
+          <Label className="text-gray-600">{t("requesterPosition")}</Label>
+          <p className="font-medium">
+            {currentRequest?.emp?.position || "N/A"}
+          </p>
+        </div>
+        <div>
+          <Label className="text-gray-600">{t("requestType")}</Label>
+          <p className="font-medium">
+            {currentRequest?.requestType || "N/A"}
+          </p>
+        </div>
+        <div>
+          <Label className="text-gray-600">{t("currentStatus")}</Label>
+          <p className="font-medium">{currentRequest?.status || "N/A"}</p>
+        </div>
+        <div className="">
+          <Label className="text-gray-600">{t("attachedDocument")}</Label>
+          {currentRequest?.documentUrl ? (
+            <a
+              href={currentRequest.documentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center text-blue-500 hover:underline"
             >
-              Cancel
-            </Button>
-
-            { (employee?.employeeId== requestHistory?.assignedto) && (
-               <Button
-                  type="submit"
-                  className="bg-green-700 hover:bg-green-600 py-3 px-6 rounded-xl text-white"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Updating..." : "Update Request"}
-                </Button>
-            )}
-            {/* <>
-                <p>{employee?.employeeId}</p>
-                <p>{requestHistory?.assignedto} g</p>
-            
-              </> */}
+              <Link className="mr-2" size={16} />
+              {currentRequest.documentUrl.split("/").pop()}
+            </a>
+          ) : (
+            <p className="font-medium text-gray-500">N/A</p>
+          )}
+        </div>
+        {currentRequest?.description && (
+          <div className="md:col-span-2">
+            <Label className="text-gray-600">{t("description")}</Label>
+            <p className="font-medium">{currentRequest.description}</p>
           </div>
-        </form>
+        )}
       </div>
     </div>
+
+    {/* Update Form Section */}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-4">
+     <div className="relative w-full">
+  <label htmlFor="status" className="block mb-2 text-sm font-medium text-gray-700">
+    {t("updateStatus")}
+  </label>
+  <div className="relative">
+    <select
+      id="status"
+      name="status"
+      className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 pr-10 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition"
+      value={formData.status}
+      onChange={handleChange}
+      required
+    >
+      <option value="PENDING">{t("pending")}</option>
+      <option value="COMPLETED">{t("completed")}</option>
+      <option value="REJECTED">{t("rejected")}</option>
+    </select>
+    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+
+        <div>
+          <Label htmlFor="reply" className="text-gray-700">
+            {t("adminReply")}
+          </Label>
+          <textarea
+            id="reply"
+            name="reply"
+            className="w-full rounded-xl border border-gray-300 p-3 focus:border-green-700 focus:outline-none"
+            placeholder={t("enterReply")}
+            rows={4}
+            value={formData.reply || ""}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="col-span-2 space-y-2">
+          <Label htmlFor="file">{t("selectFile")}</Label>
+          <Input
+            id="file"
+            type="file"
+            onChange={handleFileChange}
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+          />
+          {uploadStatus && (
+            <p
+              className={`text-sm ${
+                uploadStatus.success ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {uploadStatus.message}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {error && (
+        <div className="p-3 bg-red-50 text-red-600 rounded-lg">{error}</div>
+      )}
+
+      {submitSuccess && (
+        <div className="p-3 bg-green-50 text-green-600 rounded-lg">
+          {t("requestUpdated")}
+        </div>
+      )}
+
+      <div className="flex justify-end space-x-4">
+        <Button
+          type="button"
+          variant="outline"
+          className="py-3 px-6 rounded-xl"
+          onClick={() => router.back()}
+        >
+          {t("cancel")}
+        </Button>
+
+        {employee?.employeeId === requestHistory?.assignedto && (
+          <Button
+            type="submit"
+            className="bg-green-700 hover:bg-green-600 py-3 px-6 rounded-xl text-white"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? t("updating") : t("updateRequest")}
+          </Button>
+        )}
+      </div>
+    </form>
+  </div>
+</div>
   );
 }

@@ -639,15 +639,8 @@ const Navigation = ({
             
             
           </header> */}
-          <main className="container mx-auto">
-            {/* <ScrollArea
-              className="h-[calc(100vh-64px)] w-full max-w-7xl mx-auto"
-              dir={i18n.language === "ar" ? "rtl" : "ltr"}
-            >
-              
-
-              <ScrollBar orientation="horizontal" />
-            </ScrollArea> */}
+          <main className="container mx-auto"  dir={i18n.language === "ar" ? "rtl" : "ltr"}>
+        
             
             {children}
           </main>
